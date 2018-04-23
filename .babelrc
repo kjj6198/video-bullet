@@ -1,0 +1,20 @@
+{
+  "presets": ["react", "es2015", "flow", "env", "stage-0"],
+  "plugins": [
+    "react-hot-loader/babel",
+    "syntax-dynamic-import",
+    [
+      "module-resolver",
+      {
+        "alias": {
+          "@": "./client"
+        }
+      }
+    ]
+  ],
+  "env": {
+    "development": {
+      "presets": ["react-hmre"]
+    }
+  }
+}

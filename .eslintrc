@@ -1,0 +1,40 @@
+{
+  "plugins": [
+    "smells",
+    "react",
+    "flowtype"
+  ],
+  "env": {
+    "browser": true
+  },
+  "extends": "airbnb",
+  "parser": "babel-eslint",
+  "globals": {
+    "$": true,
+    "window": true,
+    "document": true
+  },
+  "settings": {
+    "import/resolver": {
+      "webpack": {},
+      "babel-module": {}
+    }
+  },
+  "rules": {
+    "no-debugger": "off",
+    "react/jsx-filename-extension": 0,
+    "default-case": 0,
+    "no-multi-spaces": 0,
+    "react/sort-comp": [1, {
+      "order": [
+        "type-annotations",
+        "state",
+        "static-methods",
+        "constructor",
+        "lifecycle",
+        "everything-else",
+        "render"
+      ]
+    }]
+  }
+}

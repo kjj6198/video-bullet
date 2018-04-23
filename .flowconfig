@@ -1,0 +1,14 @@
+[ignore]
+.*/node_modules/styled-components/.*
+.*/node_modules/pubnub/.*
+.*/node_modules/babel-plugin-transform-react-remove-prop-types/.*
+.*/node_modules/polished/.*
+.*/node_modules/stylelint/.*
+# ignore immutable for now due to a flow error in v3.x.x #1308
+.*/node_modules/immutable/dist/immutable.js.flow
+
+[options]
+module.name_mapper='^@\/\(.*\)$' -> '<PROJECT_ROOT>/app/\1'
+
+[version]
+0.70.0
