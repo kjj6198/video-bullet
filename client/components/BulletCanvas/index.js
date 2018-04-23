@@ -1,15 +1,8 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-
-
-type Message = {
-  startTime: number,
-  endTime: number,
-  text: string,
-  style?: string,
-  font?: string,
-}
+import CommentAnimation from '../../services/CommentAnimation';
+import type { Message } from '../../services/types';
 
 type Props = {
   messages: Array<Message>,
@@ -19,16 +12,32 @@ const messages: Array<Message> = [
   {
     startTime: 0,
     endTime: 20,
-    text: 'hello world',
-    style: '45px "PingFang TC"',
-    font: '45px "PingFang TC"',
+    content: 'hello world',
+    style: {
+      color: '#27cc95',
+      fontSize: 20,
+      fontFamily: 'PingFang TC',
+    },
   },
   {
-    startTime: 30,
-    endTime: 50.56,
-    text: 'MY COMMENT',
-    style: '25px "PingFang TC"',
-    font: '25px "PingFang TC"',
+    startTime: 0,
+    endTime: 20,
+    content: '你是大笨蛋asd',
+    style: {
+      color: 'red',
+      fontSize: 25,
+      fontFamily: 'PingFang TC',
+    },
+  },
+  {
+    startTime: 0,
+    endTime: 20,
+    content: 'Jack is awesome',
+    style: {
+      color: 'rgba(124,20,123,.8)',
+      fontSize: 50,
+      fontFamily: 'Roboto',
+    },
   },
 ];
 
@@ -41,7 +50,10 @@ const Canvas = styled.canvas`
 export default class BulletCanvas extends Component<Props> {
   canvas: React.Ref;
   context: CanvasRenderingContext2D;
+  animation: CommentAnimation;
   width: number;
+  frameID: any;
+  messages: Array<CommentAnimation>;
 
   constructor(props: Props) {
     super(props);
@@ -49,33 +61,23 @@ export default class BulletCanvas extends Component<Props> {
   }
 
   componentDidMount() {
-    if (this.canvas) {
+    if (this.canvas.current) {
       this.context = this.canvas.current.getContext('2d');
     }
-    const message : Message = messages[0];
 
-    this.width = this.context.measureText(message.text).width;
-    this.start();
-  }
+    const ctx = this.context;
+    this.messages = messages.map(msg => new CommentAnimation(
+      ctx,
+      msg,
+      { x: ctx.canvas.width, y: Math.random() * ctx.canvas.height + 30 },
+    ));
 
-  componentDidUpdate() {
-
+    this.frameID = requestAnimationFrame(this.start.bind(this));
   }
 
   start() {
-    const { context: ctx } = this;
-    const message : Message = messages[0];
-    ctx.clearRect(0, 0, 1368, 1000);
-    ctx.save();
-    ctx.font = message.font;
-    ctx.strokeStyle = 'black';
-    ctx.shadowBlur = 3;
-    ctx.lineWidth = 1;
-    ctx.fillStyle = 'red';
-    ctx.fillText(message.text, ctx.canvas.width + this.width, 100);
-    ctx.restore();
-    this.width -= 3;
-
+    this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+    this.messages.forEach(animation => animation.update());
     requestAnimationFrame(() => this.start());
   }
 
