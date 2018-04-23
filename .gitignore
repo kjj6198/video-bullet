@@ -68,3 +68,4 @@ typings/
 # End of https://www.gitignore.io/api/node
 
 ./video.mp4
+.DS_Store
