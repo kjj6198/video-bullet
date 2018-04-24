@@ -9,6 +9,7 @@
 
 [options]
 module.name_mapper='^@\/\(.*\)$' -> '<PROJECT_ROOT>/app/\1'
+munge_underscores=true
 
 [version]
 0.70.0

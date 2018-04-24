@@ -12,6 +12,8 @@ type Props = {
   volume?: number,
   paused: boolean,
   controls?: boolean,
+  onChangeCurrentTime?: (video: HTMLVideoElement) => void,
+  onPause?: (video: React.SyntheticEvent) => void,
 };
 
 type State = {
@@ -19,9 +21,13 @@ type State = {
 }
 
 const VideoWrapper = styled.div`
-  width: 75%;
-  max-width: 1200px;
-  margin: 1em auto;
+  
+`;
+
+const Video = styled.video`
+  &:-webkit-full-screen {
+    all: initial;
+  }
 `;
 
 export default class BulletVideo extends Component<Props, State> {
@@ -60,7 +66,7 @@ export default class BulletVideo extends Component<Props, State> {
   }
 
   onChangeFullScreen = (e) => {
-    console.log(e);
+    this.props.onChangeFullScreen(e);
   }
 
   gotoFullScreen = (e) => {
@@ -68,7 +74,10 @@ export default class BulletVideo extends Component<Props, State> {
   }
 
   changeCurrentTime = () => {
-    this.setState({ currentTime: this.video.current.currentTime });
+    this.setState(
+      { currentTime: this.video.current.currentTime },
+      () => this.props.onChangeCurrentTime(this.video.current),
+    );
   }
 
 
@@ -84,20 +93,20 @@ export default class BulletVideo extends Component<Props, State> {
         <button onClick={this.gotoFullScreen}>FULL</button>
         <span>{Math.floor(currentTime / 60)} : {Math.floor(currentTime % 60)}</span>
         <VideoWrapper>
-          <video
-            onPlay={console.log}
-            onPause={console.log}
+          <Video
+            onPlay={this.props.onPlay}
+            onPause={this.props.onPause}
             onTimeUpdate={this.changeCurrentTime}
             onSeeking={this.changeCurrentTime}
             onSeeked={this.changeCurrentTime}
-            ref={this.video}
+            innerRef={this.video}
             controls
             autoPlay={autoplay}
             allowFullScreen
             webkitallowfullscreen="true"
           >
             <source src={src} type="video/mp4" />
-          </video>
+          </Video>
         </VideoWrapper>
       </div>
     );

@@ -1,91 +1,90 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { isEmpty } from 'ramda';
 import CommentAnimation from '../../services/CommentAnimation';
 import type { Message } from '../../services/types';
 
 type Props = {
   messages: Array<Message>,
+  stop?: boolean,
+  fullscreen: boolean,
+  currentTime: number,
 };
 
-const messages: Array<Message> = [
-  {
-    startTime: 0,
-    endTime: 20,
-    content: 'hello world',
-    style: {
-      color: '#27cc95',
-      fontSize: 20,
-      fontFamily: 'PingFang TC',
-    },
-  },
-  {
-    startTime: 0,
-    endTime: 20,
-    content: '你是大笨蛋asd',
-    style: {
-      color: 'red',
-      fontSize: 25,
-      fontFamily: 'PingFang TC',
-    },
-  },
-  {
-    startTime: 0,
-    endTime: 20,
-    content: 'Jack is awesome',
-    style: {
-      color: 'rgba(124,20,123,.8)',
-      fontSize: 50,
-      fontFamily: 'Roboto',
-    },
-  },
-];
-
 const Canvas = styled.canvas`
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
   background-color: transparent;
-  width: 854px;
-  height: 480px;
+  width: 100%;
+  height: 100%;
 `;
 
 export default class BulletCanvas extends Component<Props> {
-  canvas: React.Ref;
   context: CanvasRenderingContext2D;
+  canvas: { current: null | HTMLCanvasElement } = React.createRef();
   animation: CommentAnimation;
   width: number;
   frameID: any;
   messages: Array<CommentAnimation>;
 
-  constructor(props: Props) {
-    super(props);
-    this.canvas = React.createRef();
-  }
-
   componentDidMount() {
     if (this.canvas.current) {
-      this.context = this.canvas.current.getContext('2d');
+      const ctx = this.canvas.current.getContext('2d');
+      const margin = {
+        top: 30,
+        bottom: 30,
+      };
+
+      this.messages = this.props.messages.map(msg => new CommentAnimation(
+        ctx,
+        msg,
+        {
+          x: ctx.canvas.width,
+          y: (Math.random() * (ctx.canvas.height - margin.top - margin.bottom) + margin.top),
+        },
+      ));
+
+      this.start();
     }
+  }
 
-    const ctx = this.context;
-    this.messages = messages.map(msg => new CommentAnimation(
-      ctx,
-      msg,
-      { x: ctx.canvas.width, y: Math.random() * ctx.canvas.height + 30 },
-    ));
+  componentDidUpdate(prevProps: Props, prevState) {
+    if (prevProps.stop === false && this.props.stop) {
+      this.stop();
+    } else if (prevProps.stop && this.props.stop === false) {
+      this.start();
+    }
+  }
 
-    this.frameID = requestAnimationFrame(this.start.bind(this));
+  stop() {
+    cancelAnimationFrame(this.frameID);
   }
 
   start() {
-    this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
-    this.messages.forEach(animation => animation.update());
-    requestAnimationFrame(() => this.start());
+    // this is main animation logic.
+    // only be called when componentDidMount()
+    // so there is no way to insert new message.
+    // and let message start, stop.
+    const ctx = this.canvas.current.getContext('2d');
+    const { currentTime } = this.props;
+    if (ctx) {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      this.messages
+        .filter(animation => !animation.ended && animation.message.startTime <= currentTime)
+        .forEach(animation => animation.update(currentTime));
+    }
+    this.frameID = requestAnimationFrame(() => this.start());
   }
 
   render() {
     return (
       <Canvas
-        width="1368"
-        height="768"
+        width={1368}
+        height={768}
+        fullscreen={this.props.fullscreen}
         innerRef={this.canvas}
       />
     );
